@@ -341,7 +341,7 @@ public class ResourceProcessorInvoker {
 				return false;
 			}
 
-			return super.supports(type, value) && isValueTypeMatch((Resources<?>) value, getTargetType());
+			return super.supports(type, value) && isValueTypeMatch((Resources<?>) value, getTargetType(), type);
 		}
 
 		/**
@@ -353,6 +353,19 @@ public class ResourceProcessorInvoker {
 		 * @return
 		 */
 		static boolean isValueTypeMatch(Resources<?> resources, ResolvableType target) {
+		    return isValueTypeMatch(resources, target, null);
+		}
+
+		/**
+		 * Returns whether the given {@link Resources} instance matches the given {@link ResolvableType}. We predict this by
+		 * inspecting the first element of the content of the {@link Resources}.
+		 * 
+		 * @param resources the {@link Resources} to inspect.
+		 * @param target that target {@link ResolvableType}.
+		 * @param type that type {@link ResolvableType}.
+		 * @return
+		 */
+		static boolean isValueTypeMatch(Resources<?> resources, ResolvableType target, ResolvableType type) {
 
 			if (resources == null) {
 				return false;
@@ -361,7 +374,12 @@ public class ResourceProcessorInvoker {
 			Collection<?> content = resources.getContent();
 
 			if (content.isEmpty()) {
+
+				if (type !=null && target!=null && target.getType().getTypeName().equals(type.getType().getTypeName())) {
+					return true;
+				}
 				return false;
+
 			}
 
 			ResolvableType superType = null;
@@ -391,7 +409,7 @@ public class ResourceProcessorInvoker {
 			return false;
 		}
 	}
-
+	
 	/**
 	 * Helper extension of {@link AnnotationAwareOrderComparator} to make {@link #getOrder(Object)} public to allow it
 	 * being used in a standalone fashion.
